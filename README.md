@@ -1618,19 +1618,13 @@ for (int i = 0; i < sizeof(x) * CHAR_BIT; i++) // unroll for more speed...
 }
 ```
 
-Interleaved bits (aka Morton numbers) are useful for linearizing 2D integer
-coordinates, so x and y are combined into a single number that can be 
-compared easily and has the property that a number is usually close to 
-another if their x and y values are close.
-
+Interleaved bits (aka Morton numbers) are useful for linearizing 2D integer coordinates, so x and y are combined into a single number that can be compared easily and has the property that a number is usually close to another if their x and y values are close.
 
 <hr>
-
 
 <a name="InterleaveTableLookup">
 ### Interleave bits by table lookup
 </a>
-
 
 ```c
 static const unsigned short MortonTable256[256] = 
@@ -1679,25 +1673,16 @@ MortonTable256[x >> 8]   << 16 |
     MortonTable256[x & 0xFF];
 
 ```
-For more speed, use an additional table with values that are 
-MortonTable256 pre-shifted one bit to the left.  This second table 
-could then be used for the y lookups, thus reducing the
-operations by two, but almost doubling the memory required.  
-Extending this same idea, four tables could be used, with two of them
-pre-shifted by 16 to the left of the previous two, so that we would
-only need 11 operations total.
+For more speed, use an additional table with values that are MortonTable256 pre-shifted one bit to the left.  This second table could then be used for the y lookups, thus reducing the operations by two, but almost doubling the memory required.  
+Extending this same idea, four tables could be used, with two of them pre-shifted by 16 to the left of the previous two, so that we would only need 11 operations total.
+
 <hr>
 
-
 <a name="Interleave64bitOps">
-### Interleave bits with 64-bit multiply</a>
+### Interleave bits with 64-bit multiply
+</a>
 
-
-In 11 operations, this version interleaves bits of two bytes 
-(rather than shorts, as in the other versions), 
-but many of the operations are 64-bit multiplies 
-so it isn't appropriate for all machines.  The input parameters, x and y,
-should be less than 256.
+In 11 operations, this version interleaves bits of two bytes (rather than shorts, as in the other versions), but many of the operations are 64-bit multiplies so it isn't appropriate for all machines. The input parameters, x and y, should be less than 256.
 
 ```c
 unsigned char x;  // Interleave bits of (8-bit) x and y, so that all of the
@@ -1710,12 +1695,9 @@ z = ((x * 0x0101010101010101ULL & 0x8040201008040201ULL) *
     0x0102040810204081ULL >> 48) & 0xAAAA;
 ```
 
-Holger Bettag was inspired to suggest this technique on
-October 10, 2004 after reading the multiply-based bit reversals here.
-
+Holger Bettag was inspired to suggest this technique on October 10, 2004 after reading the multiply-based bit reversals here.
 
 <hr>
-
 
 <a name="InterleaveBMN">
 ### Interleave bits by Binary Magic Numbers
@@ -1744,14 +1726,11 @@ y = (y | (y << S[0])) & B[0];
 z = x | (y << 1);
 ```
 
-
 <hr>
-
 
 <a name="ZeroInWord">
 ### Determine if a word has a zero byte
 </a>
-
 
 ```c
 // Fewer operations:
@@ -1759,10 +1738,7 @@ unsigned int v; // 32-bit word to check if any 8-bit byte in it is 0
 bool hasZeroByte = ~((((v & 0x7F7F7F7F) + 0x7F7F7F7F) | v) | 0x7F7F7F7F);
 ```
 
-The code above may be useful when doing a fast string copy in which a word 
-is copied at a time; it uses 5 operations.  
-On the other hand, testing for a null byte in the obvious ways (which follow)
-have at least 7 operations (when counted in the most sparing way), and at most 12.
+The code above may be useful when doing a fast string copy in which a word is copied at a time; it uses 5 operations. On the other hand, testing for a null byte in the obvious ways (which follow) have at least 7 operations (when counted in the most sparing way), and at most 12.
 
 ```c
 // More operations:
@@ -1772,24 +1748,7 @@ unsigned char * p = (unsigned char *) &v;
 bool hasNoZeroByte = *p && *(p + 1) && *(p + 2) && *(p + 3);
 ```
 
-The code at the beginning of this section (labeled "Fewer operations") 
-works by first zeroing the high bits of the 4 bytes in the word.
-Subsequently, it adds a number that will result in an overflow to 
-the high bit of a byte if any of the low bits were initialy set.  
-Next the high bits of the original word are ORed with these values; 
-thus, the high bit of a byte is set iff any bit in the byte was set.  
-Finally, we determine if any of these high bits are zero by ORing with 
-ones everywhere except the high bits and inverting the result.  
-Extending to 64 bits is trivial; simply increase the constants to be 
-0x7F7F7F7F7F7F7F7F.
-
-For an additional improvement, a fast pretest that requires only 4 operations
-may be performed to determine if the word <em>may</em> have a zero byte.  
-The test also returns true if the high byte is 0x80, so there are 
-occasional false positives, but the slower and more reliable version 
-above may then be used on candidates for an overall increase in speed with
-correct output.
-
+The code at the beginning of this section (labeled "Fewer operations") works by first zeroing the high bits of the 4 bytes in the word. Subsequently, it adds a number that will result in an overflow to the high bit of a byte if any of the low bits were initialy set. Next the high bits of the original word are ORed with these values; thus, the high bit of a byte is set iff any bit in the byte was set. Finally, we determine if any of these high bits are zero by ORing with ones everywhere except the high bits and inverting the result. Extending to 64 bits is trivial; simply increase the constants to be `0x7F7F7F7F7F7F7F7F`. For an additional improvement, a fast pretest that requires only 4 operations may be performed to determine if the word <em>may</em> have a zero byte. The test also returns true if the high byte is 0x80, so there are occasional false positives, but the slower and more reliable version above may then be used on candidates for an overall increase in speed with correct output.
 
 ```c
 bool hasZeroByte = ((v + 0x7efefeff) ^ ~v) & 0x81010100;
@@ -1800,71 +1759,37 @@ if (hasZeroByte) // or may just have 0x80 in the high byte
 ```
 
 There is yet a faster method — 
-use <a href="http://graphics.stanford.edu/~seander/bithacks.html#HasLessInWord">`hasless`</a>(v, 1), 
-which is defined below; it 
-works in 4 operations and requires no subsquent verification.  It simplifies
-to 
+use [hasless](http://graphics.stanford.edu/~seander/bithacks.html#HasLessInWord)(v, 1), which is defined below; it works in 4 operations and requires no subsquent verification. It simplifies to 
 
 ```c
 #define haszero(v) (((v) - 0x01010101UL) & ~(v) & 0x80808080UL)
 ```
 
-The subexpression (v - 0x01010101UL), evaluates to a high bit set in any
-byte whenever the corresponding byte in v is zero or greater than 0x80.  
-The sub-expression ~v & 0x80808080UL 
-evaluates to high bits set in bytes where the byte of v doesn't have its high 
-bit set (so the byte was less than 0x80).  Finally, by ANDing these two 
-sub-expressions the result is the high bits set where the bytes in v 
-were zero, since the high bits set due to a value greater than 0x80 
-in the first sub-expression are masked off by the second.
-
-Paul Messmer suggested the fast pretest improvement on October 2, 2004.  
-Juha Järvi later suggested `hasless(v, 1)`
-on April 6, 2005, which
-he found on <a href="http://www.azillionmonkeys.com/qed/asmexample.html">Paul
-Hsieh's Assembly Lab</a>; previously it was written in a newsgroup post 
-on April 27, 1987 by Alan Mycroft.
-
+The subexpression `(v - 0x01010101UL)`, evaluates to a high bit set in any byte whenever the corresponding byte in v is zero or greater than `0x80`. The sub-expression `~v & 0x80808080UL` evaluates to high bits set in bytes where the byte of v doesn't have its high bit set (so the byte was less than 0x80).  Finally, by ANDing these two sub-expressions the result is the high bits set where the bytes in v were zero, since the high bits set due to a value greater than `0x80` in the first sub-expression are masked off by the second. Paul Messmer suggested the fast pretest improvement on October 2, 2004. Juha Järvi later suggested `hasless(v, 1)` on April 6, 2005, which he found on [Paul Hsieh's Assembly Lab](http://www.azillionmonkeys.com/qed/asmexample.html); previously it was written in a newsgroup post on April 27, 1987 by Alan Mycroft.
 
 <hr>
-
 
 <a name="#ValueInWord">
 ### Determine if a word has a byte equal to n
 </a>
 
-
-We may want to know if any byte in a word has a specific value.  To do so,
-we can XOR the value to test with a word that has been filled with the 
-byte values in which we're interested.  Because XORing a value with itself
-results in a zero byte and nonzero otherwise, we can pass the result to 
-`haszero`.
+We may want to know if any byte in a word has a specific value.  To do so, we can XOR the value to test with a word that has been filled with the byte values in which we're interested.  Because XORing a value with itself results in a zero byte and nonzero otherwise, we can pass the result to `haszero`.
 
 ```c
 #define hasvalue(x,n) \
 (haszero((x) ^ (~0UL/255 * (n))))
 ```
 
-Stephen M Bennet suggested this on December 13, 2009 after reading the entry
-for `haszero`.
-
+Stephen M Bennet suggested this on December 13, 2009 after reading the entry for `haszero`.
 
 <hr>
-
 
 <a name="HasLessInWord">
 ### Determine if a word has a byte less than n
 </a>
 
-
-
-Test if a word x contains an unsigned byte with value < n.
-Specifically for n=1, it can be used to find a 0-byte by examining one
-long at a time, or any byte by XORing x with a mask first.
-Uses 4 arithmetic/logical operations when n is constant.
-
-Requirements: x>=0; 0<=n<=128
-
+Test if a word x contains an unsigned byte with value < n. Specifically for n=1, it can be used to find a 0-byte by examining one long at a time, or any byte by XORing x with a mask first. Uses 4 arithmetic/logical operations when n is constant.  
+Requirements: `x>=0; 0<=n<=128`
 
 ```c
 #define hasless(x,n) (((x)-~0UL/255*(n))&~(x)&~0UL/255*128)
@@ -1875,24 +1800,16 @@ To count the number of bytes in x that are less than n in 7 operations, use
 (((~0UL/255*(127+(n))-((x)&~0UL/255*127))&~(x)&~0UL/255*128)/128%255)
 ```
 
-
-Juha Järvi sent this clever technique to me on April 6, 2005.  The
-`countless` macro was added by Sean Anderson on 
-April 10, 2005, inspired by Juha's `countmore`, below.
-
+Juha Järvi sent this clever technique to me on April 6, 2005. The `countless` macro was added by Sean Anderson on April 10, 2005, inspired by Juha's `countmore`, below.
 
 <hr>
-
 
 <a name="HasMoreInWord">
 ### Determine if a word has a byte greater than n
 </a>
 
-
-Test if a word x contains an unsigned byte with value > n.  
-Uses 3 arithmetic/logical operations when n is constant.
-
-Requirements: x>=0; 0<=n<=127
+Test if a word x contains an unsigned byte with `value > n`. Uses 3 arithmetic/logical operations when n is constant.  
+Requirements: `x>=0; 0<=n<=127`
 
 ```c
 #define hasmore(x,n) (((x)+~0UL/255*(127-(n))|(x))&~0UL/255*128)
@@ -1903,67 +1820,41 @@ To count the number of bytes in x that are more than n in 6 operations, use:
 (((((x)&~0UL/255*127)+~0UL/255*(127-(n))|(x))&~0UL/255*128)/128%255)
 ```
 
-The macro `hasmore` was suggested by Juha Järvi on 
-April 6, 2005, and he added `countmore` on April 8, 2005.
-
+The macro `hasmore` was suggested by Juha Järvi on April 6, 2005, and he added `countmore` on April 8, 2005.
 
 <hr>
-
 
 <a name="HasBetweenInWord">
 ### Determine if a word has a byte between m and n
 </a>
 
-
-When m&nbsp;<&nbsp;n, this technique tests if a word x contains an 
-unsigned byte value, such that m < value < n.  
-<!--When m&nbsp;>&nbsp;n, it tests for byte values
-outside the range; that is value < n and m <= value.-->
-It uses 7 arithmetic/logical operations when n and m are constant.
-
-Note:  Bytes that equal n can be reported by `likelyhasbetween`
-as false positives,
-so this should be checked by character if a certain result is needed.
-
-Requirements: x>=0; 0<=m<=127; 0<=n<=128
-
+When `m < n`, this technique tests if a word x contains an unsigned byte value, such that `m < value < n`. It uses 7 arithmetic/logical operations when n and m are constant. Note:  Bytes that equal n can be reported by `likelyhasbetween`
+as false positives, so this should be checked by character if a certain result is needed.  
+Requirements: `x>=0; 0<=m<=127; 0<=n<=128`
 
 ```c
 #define likelyhasbetween(x,m,n) \
 ((((x)-~0UL/255*(n))&~(x)&((x)&~0UL/255*127)+~0UL/255*(127-(m)))&~0UL/255*128)
 ```
-This technique would be suitable for a fast pretest.  A variation that
-takes one more operation (8 total for constant m and n)
-but provides the exact answer is:
+This technique would be suitable for a fast pretest. A variation that takes one more operation (8 total for constant m and n) but provides the exact answer is:
 ```c
 #define hasbetween(x,m,n) \
 ((~0UL/255*(127+(n))-((x)&~0UL/255*127)&~(x)&((x)&~0UL/255*127)+~0UL/255*(127-(m)))&~0UL/255*128)
 ```
-To count the number of bytes in x that are between m and n (exclusive)
-in 10 operations, use:
+To count the number of bytes in x that are between m and n (exclusive) in 10 operations, use:
 ```c
 #define countbetween(x,m,n) (hasbetween(x,m,n)/128%255)
 ```
 
-Juha Järvi suggested `likelyhasbetween` on April 6, 2005.  
-From there,
-Sean Anderson created `hasbetween` and 
-`countbetween` on April 10, 2005.
-
+Juha Järvi suggested `likelyhasbetween` on April 6, 2005. From there, Sean Anderson created `hasbetween` and `countbetween` on April 10, 2005.
 
 <hr>
-
 
 <a name="NextBitPermutation">
 ### Compute the lexicographically next bit permutation
 </a>
 
-
-Suppose we have a pattern of N bits set to 1 in an integer and we want the 
-next permutation of N 1 bits in a lexicographical sense.  
-For example, if N is 3 and the bit pattern is 00010011, the next patterns 
-would be 00010101, 00010110, 00011001,00011010, 00011100, 00100011, 
-and so forth.  The following is a fast way to compute the next permutation.
+Suppose we have a pattern of N bits set to 1 in an integer and we want the next permutation of N 1 bits in a lexicographical sense. For example, if N is 3 and the bit pattern is 00010011, the next patterns would be `00010101`, `00010110`, `00011001`, `00011010`, `00011100`, `00100011`, and so forth. The following is a fast way to compute the next permutation.
 
 ```c
 unsigned int v; // current permutation of bits 
@@ -1975,25 +1866,14 @@ unsigned int t = v | (v - 1); // t gets v's least significant 0 bits set to 1
 w = (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctz(v) + 1));  
 ```
 
-The __builtin_ctz(v) GNU C compiler intrinsic for x86 CPUs returns the 
-number of trailing zeros.  If you are using Microsoft compilers for x86, 
-the intrinsic is _BitScanForward.  These both emit a bsf instruction, but
-equivalents may be available for other architectures.  If not, then 
-consider using one of the methods for counting the consecutive zero bits
-mentioned earlier.
-
-Here is another version that tends to be slower because of its
-division operator, but it does not require counting the trailing zeros.
+The __builtin_ctz(v) GNU C compiler intrinsic for x86 CPUs returns the number of trailing zeros.  If you are using Microsoft compilers for x86, the intrinsic is _BitScanForward.  These both emit a bsf instruction, but equivalents may be available for other architectures.  If not, then consider using one of the methods for counting the consecutive zero bits
+mentioned earlier. Here is another version that tends to be slower because of its division operator, but it does not require counting the trailing zeros.
 
 ```c
 unsigned int t = (v | (v - 1)) + 1;  
 w = t | ((((t & -t) / (v & -v)) >> 1) - 1);  
 ```
 
-Thanks to Dario Sneidermanis of Argentina, who provided this on 
-November 28, 2009.
+Thanks to Dario Sneidermanis of Argentina, who provided this on November 28, 2009.
 
-
-<a href="http://webhostingrating.com/libs/bithacks-be">
-A Belorussian translation</a> (provided by <a href="http://webhostingrating.com/">Webhostingrating</a>)
-is available.
+[A Belorussian translation](http://webhostingrating.com/libs/bithacks-be) (provided by [Webhostingrating](http://webhostingrating.com/)) is available.
