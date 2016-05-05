@@ -418,19 +418,14 @@ for (c = 0; v; v >>= 1)
 }
 ```
 
-The naive approach requires one iteration per bit, until no more
-bits are set.  So on a 32-bit word with only the high set,
+The naive approach requires one iteration per bit, until no more bits are set. So on a 32-bit word with only the high set,
 it will go through 32 iterations.
 
-
-
 <hr>
-
 
 <a name="CountBitsSetTable">
 ### Counting bits set by lookup table
 </a>
-
 
 ```c
 static const unsigned char BitsSetTable256[256] = 
@@ -468,14 +463,11 @@ for (int i = 0; i < 256; i++)
 
 On July 14, 2009 Hallvard Furuseth suggested the macro compacted table.
 
-
 <hr>
-
 
 <a name="CountBitsSetKernighan">
 ### Counting bits set, Brian Kernighan's way
 </a>
-
 
 ```c
 unsigned int v; // count the number of bits set in v
@@ -486,21 +478,11 @@ for (c = 0; v; c++)
 }
 ```
 
-Brian Kernighan's method goes through as many iterations
-as there are set bits.  So if we have a 32-bit word with only
-the high bit set, then it will only go once through the loop.
-
-Published in 1988, the C Programming Language 2nd Ed. 
-(by Brian W. Kernighan and Dennis M. Ritchie) 
-mentions this in exercise 2-9.
-On April 19, 2006 Don Knuth pointed out to me that this method 
-"was first published by Peter Wegner in CACM 3 (1960), 322. 
-(Also discovered independently by Derrick Lehmer and published 
-in 1964 in a book edited by Beckenbach.)"
-
+Brian Kernighan's method goes through as many iterations as there are set bits. So if we have a 32-bit word with only
+the high bit set, then it will only go once through the loop. Published in 1988, the C Programming Language 2nd Ed. 
+(by Brian W. Kernighan and Dennis M. Ritchie) mentions this in exercise 2-9. On April 19, 2006 Don Knuth pointed out to me that this method "was first published by Peter Wegner in CACM 3 (1960), 322. (Also discovered independently by Derrick Lehmer and published in 1964 in a book edited by Beckenbach.)"
 
 <hr>
-
 
 <a name="CountBitsSet64">
 ### Counting bits set in 14, 24, or 32-bit words using 64-bit instructions
@@ -526,35 +508,15 @@ c += (((v & 0xfff000) >> 12) * 0x1001001001001ULL & 0x84210842108421ULL) %
      c += ((v >> 24) * 0x1001001001001ULL & 0x84210842108421ULL) % 0x1f;
 ```
 
-This method requires a 64-bit CPU with fast modulus division to be efficient.
-The first option takes only 3 operations; the second option takes 10; and
-the third option takes 15.
+This method requires a 64-bit CPU with fast modulus division to be efficient. The first option takes only 3 operations; the second option takes 10; and the third option takes 15.
 
-Rich Schroeppel originally created a 9-bit version, similiar to option 1;
-see the Programming Hacks section of 
-<a href="http://www.inwap.com/pdp10/hbaker/hakmem/hakmem.html">
-Beeler, M., Gosper, R. W., and Schroeppel, R. 
-HAKMEM. MIT AI Memo 239, Feb. 29, 1972.</a>
-His method was the inspiration for the variants above,
-devised by Sean Anderson.  Randal E. Bryant offered a couple bug fixes on
-May 3, 2005.  Bruce Dawson tweaked what had been a 12-bit version and made
-it suitable for 14 bits using the same number of operations on 
-Feburary 1, 2007.
-
-<!-- After reading this and pondering it, Roshan James wrote a web page
-<a href=
-"http://pensieve.thinkingms.com/sparksite/articles/tech/bitcounter64/bitcounter_64bit.htm">explaining how it works</a> and 
-<a href="http://pensieve.thinkingms.com/sparksite/articles/tech/bitcounter64/bitcounter_64bit_2.htm">extending it to
-16 bits</a> on March 8, 2004. -->
-
+Rich Schroeppel originally created a 9-bit version, similiar to option 1; see the Programming Hacks section of [Beeler, M., Gosper, R. W., and Schroeppel, R. HAKMEM. MIT AI Memo 239, Feb. 29, 1972.](http://www.inwap.com/pdp10/hbaker/hakmem/hakmem.html). His method was the inspiration for the variants above, devised by Sean Anderson.  Randal E. Bryant offered a couple bug fixes on May 3, 2005.  Bruce Dawson tweaked what had been a 12-bit version and made it suitable for 14 bits using the same number of operations on Feburary 1, 2007.
 
 <hr>
-
 
 <a name="CountBitsSetParallel">
 ### Counting bits set, in parallel
 </a>
-
 
 ```c
 unsigned int v; // count bits set in this (32-bit value)
@@ -577,14 +539,7 @@ B[2] = 0x0F0F0F0F = 00001111 00001111 00001111 00001111
 B[3] = 0x00FF00FF = 00000000 11111111 00000000 11111111
 B[4] = 0x0000FFFF = 00000000 00000000 11111111 11111111
 ```
-We can adjust the method for larger integer sizes by continuing with 
-the patterns for the <em>Binary Magic Numbers,</em> B and S.  
-
-If there are k bits, then we need the arrays S and B to be ceil(lg(k)) 
-elements long, and we must compute the same number of expressions for c as
-S or B are long.  For a 32-bit v, 16 operations are used.
-
-The best method for counting bits in a 32-bit integer v is the following:
+We can adjust the method for larger integer sizes by continuing with the patterns for the <em>Binary Magic Numbers,</em> B and S.  If there are k bits, then we need the arrays S and B to be `ceil(lg(k))` elements long, and we must compute the same number of expressions for c as S or B are long.  For a 32-bit v, 16 operations are used. The best method for counting bits in a 32-bit integer v is the following:
 
 ```c
 v = v - ((v >> 1) & 0x55555555);                    // reuse input as temporary
@@ -592,18 +547,7 @@ v = (v & 0x33333333) + ((v >> 2) & 0x33333333);     // temp
 c = ((v + (v >> 4) & 0xF0F0F0F) * 0x1010101) >> 24; // count
 ```
 
-The best bit counting method takes only 12 operations, 
-which is the same as the lookup-table method, 
-but avoids the memory and potential cache misses of a table.  
-It is a hybrid between the purely parallel method above
-and the earlier methods using multiplies (in the section on counting bits 
-with 64-bit instructions), though it doesn't use 64-bit instructions.
-The counts of bits set in the bytes is done in parallel, and the sum 
-total of the bits set in the bytes is computed by multiplying by 0x1010101
-and shifting right 24 bits.
-
-A generalization of the best bit counting method to integers 
-of bit-widths upto 128 (parameterized by type T) is this:
+The best bit counting method takes only 12 operations, which is the same as the lookup-table method, but avoids the memory and potential cache misses of a table. It is a hybrid between the purely parallel method above and the earlier methods using multiplies (in the section on counting bits with 64-bit instructions), though it doesn't use 64-bit instructions. The counts of bits set in the bytes is done in parallel, and the sum total of the bits set in the bytes is computed by multiplying by `0x1010101` and shifting right 24 bits. A generalization of the best bit counting method to integers of bit-widths up to 128 (parameterized by type T) is this:
 
 ```c
 v = v - ((v >> 1) & (T)~(T)0/3);                           // temp
@@ -612,121 +556,102 @@ v = (v + (v >> 4)) & (T)~(T)0/255*15;                      // temp
 c = (T)(v * ((T)~(T)0/255)) >> (sizeof(T) - 1) * CHAR_BIT; // count
 ```
 
-
-See <a href="http://groups.google.com/groups?q=reverse+bits&num=100&hl=en&group=comp.graphics.algorithms&imgsafe=off&safe=off&rnum=2&ic=1&selm=4fulhm%248dn%40atlas.uniserve.com"> 
-Ian Ashdown's nice newsgroup post</a> for more information
-on counting the number of bits set (also known as <em>sideways addition</em>).
-The best bit counting method was brought to my attention on October 5, 2005 
-by <a href="http://onezero.org/">Andrew Shapira</a>; 
-he found it in pages 187-188 of
-<a href="http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/25112.PDF">Software 
-Optimization Guide for AMD Athlon™ 64 and Opteron™ Processors</a>.
-Charlie Gordon suggested a way to shave off one operation from the 
-purely parallel version on December 14, 2005, and Don Clugston trimmed three
-more from it on December 30, 2005.  I made a typo with Don's suggestion that 
-Eric Cole spotted on January 8, 2006.  Eric later suggested the 
-arbitrary bit-width generalization to the best method on November 17, 2006. 
-On April 5, 2007, Al Williams observed that I had a line of dead code at the 
-top of the first method.
-
+See [Ian Ashdown's nice newsgroup post](http://groups.google.com/groups?q=reverse+bits&num=100&hl=en&group=comp.graphics.algorithms&imgsafe=off&safe=off&rnum=2&ic=1&selm=4fulhm%248dn%40atlas.uniserve.com) for more information on counting the number of bits set (also known as **sideways addition**). The best bit counting method was brought to my attention on October 5, 2005 by [Andrew Shapira](http://onezero.org/); he found it in pages 187-188 of [Software Optimization Guide for AMD Athlon™ 64 and Opteron™ Processors](http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/25112.PDF). Charlie Gordon suggested a way to shave off one operation from the purely parallel version on December 14, 2005, and Don Clugston trimmed three more from it on December 30, 2005.  I made a typo with Don's suggestion that Eric Cole spotted on January 8, 2006.  Eric later suggested the arbitrary bit-width generalization to the best method on November 17, 2006. On April 5, 2007, Al Williams observed that I had a line of dead code at the top of the first method.
 
 <hr>
-
 
 <a name="#CountBitsFromMSBToPos">
 ### Count bits set (rank) from the most-significant bit upto a given position
 </a>
 
-
-The following finds the the rank of a bit, meaning it returns the sum of
-bits that are set to 1 from the most-signficant bit downto the bit at
-the given position.
+The following finds the the rank of a bit, meaning it returns the sum of bits that are set to 1 from the most-signficant bit downto the bit at the given position.
 
 ```c
 uint64_t v;       // Compute the rank (bits set) in v from the MSB to pos.
-  unsigned int pos; // Bit position to count bits upto.
-  uint64_t r;       // Resulting rank of bit at pos goes here.
+unsigned int pos; // Bit position to count bits upto.
+uint64_t r;       // Resulting rank of bit at pos goes here.
 
-  // Shift out bits after given position.
-  r = v >> (sizeof(v) * CHAR_BIT - pos);
-  // Count set bits in parallel.
-  // r = (r & 0x5555...) + ((r >> 1) & 0x5555...);
-  r = r - ((r >> 1) & ~0UL/3);
-  // r = (r & 0x3333...) + ((r >> 2) & 0x3333...);
-  r = (r & ~0UL/5) + ((r >> 2) & ~0UL/5);
-  // r = (r & 0x0f0f...) + ((r >> 4) & 0x0f0f...);
-  r = (r + (r >> 4)) & ~0UL/17;
-  // r = r % 255;
-  r = (r * (~0UL/255)) >> ((sizeof(v) - 1) * CHAR_BIT);
+// Shift out bits after given position.
+r = v >> (sizeof(v) * CHAR_BIT - pos);
+
+// Count set bits in parallel.
+// r = (r & 0x5555...) + ((r >> 1) & 0x5555...);
+r = r - ((r >> 1) & ~0UL/3);
+
+// r = (r & 0x3333...) + ((r >> 2) & 0x3333...);
+r = (r & ~0UL/5) + ((r >> 2) & ~0UL/5);
+
+// r = (r & 0x0f0f...) + ((r >> 4) & 0x0f0f...);
+r = (r + (r >> 4)) & ~0UL/17;
+
+// r = r % 255;
+r = (r * (~0UL/255)) >> ((sizeof(v) - 1) * CHAR_BIT);
 ```
 
-Juha Järvi sent this to me on November 21, 2009 as an inverse operation 
-to the computing the bit position with the given rank, which follows.
-
+Juha Järvi sent this to me on November 21, 2009 as an inverse operation to the computing the bit position with the given rank, which follows.
 
 <hr>
-
 
 <a name="#SelectPosFromMSBRank">
 ### Select the bit position (from the most-significant bit) with the given count (rank)
 </a>
 
 
-The following 64-bit code selects the position of the r<sup>th</sup> 1 bit 
-when counting from the left.  In other words if we start 
-at the most significant bit and proceed to the right, 
-counting the number of bits set to 1 until we reach the desired rank, r, 
-then the position where we stop is returned.  If the rank requested exceeds
-the count of bits set, then 64 is returned.
-The code may be modified for 32-bit or counting from the right.
+The following 64-bit code selects the position of the r<sup>th</sup> 1 bit when counting from the left.  In other words if we start at the most significant bit and proceed to the right, counting the number of bits set to 1 until we reach the desired rank, r, then the position where we stop is returned.  If the rank requested exceeds the count of bits set, then 64 is returned. The code may be modified for 32-bit or counting from the right.
 
 ```c
 uint64_t v;          // Input value to find position with rank r.
-  unsigned int r;      // Input: bit's desired rank [1-64].
-  unsigned int s;      // Output: Resulting position of bit with rank r [1-64]
-  uint64_t a, b, c, d; // Intermediate temporaries for bit count.
-  unsigned int t;      // Bit count temporary.
+unsigned int r;      // Input: bit's desired rank [1-64].
+unsigned int s;      // Output: Resulting position of bit with rank r [1-64]
+uint64_t a, b, c, d; // Intermediate temporaries for bit count.
+unsigned int t;      // Bit count temporary.
 
-  // Do a normal parallel bit count for a 64-bit integer,                     
-  // but store all intermediate steps.                                        
-  // a = (v & 0x5555...) + ((v >> 1) & 0x5555...);
-  a =  v - ((v >> 1) & ~0UL/3);
-  // b = (a & 0x3333...) + ((a >> 2) & 0x3333...);
-  b = (a & ~0UL/5) + ((a >> 2) & ~0UL/5);
-  // c = (b & 0x0f0f...) + ((b >> 4) & 0x0f0f...);
-  c = (b + (b >> 4)) & ~0UL/0x11;
-  // d = (c & 0x00ff...) + ((c >> 8) & 0x00ff...);
-  d = (c + (c >> 8)) & ~0UL/0x101;
-  t = (d >> 32) + (d >> 48);
-  // Now do branchless select!                                                
-  s  = 64;
-  // if (r > t) {s -= 32; r -= t;}
-  s -= ((t - r) & 256) >> 3; r -= (t & ((t - r) >> 8));
-  t  = (d >> (s - 16)) & 0xff;
-  // if (r > t) {s -= 16; r -= t;}
-  s -= ((t - r) & 256) >> 4; r -= (t & ((t - r) >> 8));
-  t  = (c >> (s - 8)) & 0xf;
-  // if (r > t) {s -= 8; r -= t;}
-  s -= ((t - r) & 256) >> 5; r -= (t & ((t - r) >> 8));
-  t  = (b >> (s - 4)) & 0x7;
-  // if (r > t) {s -= 4; r -= t;}
-  s -= ((t - r) & 256) >> 6; r -= (t & ((t - r) >> 8));
-  t  = (a >> (s - 2)) & 0x3;
-  // if (r > t) {s -= 2; r -= t;}
-  s -= ((t - r) & 256) >> 7; r -= (t & ((t - r) >> 8));
-  t  = (v >> (s - 1)) & 0x1;
-  // if (r > t) s--;
-  s -= ((t - r) & 256) >> 8;
-  s = 65 - s;
+// Do a normal parallel bit count for a 64-bit integer,                     
+// but store all intermediate steps.                                        
+// a = (v & 0x5555...) + ((v >> 1) & 0x5555...);
+a =  v - ((v >> 1) & ~0UL/3);
+
+// b = (a & 0x3333...) + ((a >> 2) & 0x3333...);
+b = (a & ~0UL/5) + ((a >> 2) & ~0UL/5);
+
+// c = (b & 0x0f0f...) + ((b >> 4) & 0x0f0f...);
+c = (b + (b >> 4)) & ~0UL/0x11;
+
+// d = (c & 0x00ff...) + ((c >> 8) & 0x00ff...);
+d = (c + (c >> 8)) & ~0UL/0x101;
+t = (d >> 32) + (d >> 48);
+
+// Now do branchless select!                                                
+s  = 64;
+
+// if (r > t) {s -= 32; r -= t;}
+s -= ((t - r) & 256) >> 3; r -= (t & ((t - r) >> 8));
+t  = (d >> (s - 16)) & 0xff;
+
+// if (r > t) {s -= 16; r -= t;}
+s -= ((t - r) & 256) >> 4; r -= (t & ((t - r) >> 8));
+t  = (c >> (s - 8)) & 0xf;
+
+// if (r > t) {s -= 8; r -= t;}
+s -= ((t - r) & 256) >> 5; r -= (t & ((t - r) >> 8));
+t  = (b >> (s - 4)) & 0x7;
+
+// if (r > t) {s -= 4; r -= t;}
+s -= ((t - r) & 256) >> 6; r -= (t & ((t - r) >> 8));
+t  = (a >> (s - 2)) & 0x3;
+
+// if (r > t) {s -= 2; r -= t;}
+s -= ((t - r) & 256) >> 7; r -= (t & ((t - r) >> 8));
+t  = (v >> (s - 1)) & 0x1;
+
+// if (r > t) s--;
+s -= ((t - r) & 256) >> 8;
+s = 65 - s;
 ```
-If branching is fast on your target CPU, consider uncommenting the 
-if-statements and commenting the lines that follow them.
-
+If branching is fast on your target CPU, consider uncommenting the if-statements and commenting the lines that follow them.
 Juha Järvi sent this to me on November 21, 2009.
 
-
 <hr>
-
 
 <a name="ParityNaive">
 ### Computing parity the naive way
@@ -744,18 +669,13 @@ while (v)
 }
 
 ```
-
-The above code uses an approach like Brian Kernigan's bit counting, above.  
-The time it takes is proportional to the number of bits set.
-
+The above code uses an approach like Brian Kernigan's bit counting, above. The time it takes is proportional to the number of bits set.
 
 <hr>
-
 
 <a name="ParityLookupTable">
 ### Compute parity by lookup table
 </a>
-
 
 ```c
 static const bool ParityTable256[256] = 
@@ -780,22 +700,13 @@ unsigned char * p = (unsigned char *) &v;
 parity = ParityTable256[p[0] ^ p[1] ^ p[2] ^ p[3]];
 
 ```
-Randal E. Bryant encouraged the addition of the (admittedly) obvious 
-last variation with variable p on May 3, 2005.  Bruce Rawles found a typo 
-in an instance of the table variable's name on September 27, 2005, and 
-he received a $10 bug bounty.  On October 9, 2006, Fabrice Bellard 
-suggested the 32-bit variations above, which require only one table lookup;
-the previous version had four lookups (one per byte) and were slower.
-On July 14, 2009 Hallvard Furuseth suggested the macro compacted table.
-
+Randal E. Bryant encouraged the addition of the (admittedly) obvious last variation with variable p on May 3, 2005.  Bruce Rawles found a typo in an instance of the table variable's name on September 27, 2005, and he received a $10 bug bounty.  On October 9, 2006, Fabrice Bellard suggested the 32-bit variations above, which require only one table lookup; the previous version had four lookups (one per byte) and were slower. On July 14, 2009 Hallvard Furuseth suggested the macro compacted table.
 
 <hr>
-
 
 <a name="ParityWith64Bits">
 ### Compute parity of a byte using 64-bit multiply and modulus division
 </a>
-
 
 ```c
 unsigned char b;  // byte value to compute the parity of
@@ -805,24 +716,20 @@ bool parity =
 
 The method above takes around 4 operations, but only works on bytes.
 
-
 <hr>
-
 
 <a name="#ParityMultiply">
 ### Compute parity of word with a multiply
 </a>
 
-
-The following method computes the parity of the 32-bit value in only 8 
-operations using a multiply.
+The following method computes the parity of the 32-bit value in only 8 operations using a multiply.
 
 ```c
 unsigned int v; // 32-bit word
 v ^= v >> 1;
 v ^= v >> 2;
-    v = (v & 0x11111111U) * 0x11111111U;
-    return (v >> 28) & 1;
+v = (v & 0x11111111U) * 0x11111111U;
+return (v >> 28) & 1;
 ```
 
 Also for 64-bits, 8 operations are still enough.
@@ -830,15 +737,13 @@ Also for 64-bits, 8 operations are still enough.
 unsigned long long v; // 64-bit word
 v ^= v >> 1;
 v ^= v >> 2;
-    v = (v & 0x1111111111111111UL) * 0x1111111111111111UL;
-    return (v >> 60) & 1;
+v = (v & 0x1111111111111111UL) * 0x1111111111111111UL;
+return (v >> 60) & 1;
 ```
-
 
 Andrew Shapira came up with this and sent it to me on Sept. 2, 2007.
 
 <hr>
-
 
 <a name="ParityParallel">
 ### Compute parity in parallel
@@ -854,52 +759,26 @@ v &= 0xf;
 return (0x6996 >> v) & 1;
 ```
 
-The method above takes around 9 operations, and works for 32-bit words.  
-It may be optimized to work just on bytes in 5 operations by removing the 
-two lines immediately following "unsigned int v;".  The method first shifts 
-and XORs the eight nibbles of the 32-bit value together, leaving the result 
-in the lowest nibble of v.  Next, the binary number 0110 1001 1001 0110 
-(0x6996 in hex) is shifted to the right by the value represented in the lowest 
-nibble of v.  This number is like a miniature 16-bit parity-table indexed by 
-the low four bits in v.  The result has the parity of v in bit 1, which is 
-masked and returned.
-
-Thanks to Mathew Hendry for pointing out the shift-lookup idea at the end on
-Dec. 15, 2002.  
-That optimization shaves two operations off using only shifting and XORing
-to find the parity.
-
+The method above takes around 9 operations, and works for 32-bit words. It may be optimized to work just on bytes in 5 operations by removing the two lines immediately following `unsigned int v;`.  The method first shifts and XORs the eight nibbles of the 32-bit value together, leaving the result in the lowest nibble of v. Next, the binary number `0110 1001 1001 0110` (`0x6996` in hex) is shifted to the right by the value represented in the lowest nibble of v. This number is like a miniature 16-bit parity-table indexed by the low four bits in v. The result has the parity of v in bit 1, which is masked and returned. Thanks to Mathew Hendry for pointing out the shift-lookup idea at the end on Dec. 15, 2002. That optimization shaves two operations off using only shifting and XORing to find the parity.
 
 <hr>
-
-
 
 <a name="SwappingValuesSubAdd">
 ### Swapping values with subtraction and addition
 </a>
-
 
 ```c
 #define SWAP(a, b) ((&(a) == &(b)) || \
                     (((a) -= (b)), ((b) += (a)), ((a) = (b) - (a))))
 ```
 
-This swaps the values of a and b <em>without using a temporary variable.</em>
-The initial check for a and b being the same location in memory may be
-omitted when you know this can't happen.  (The compiler may omit it anyway
-as an optimization.)  If you enable overflows exceptions, then pass unsigned 
-values so an exception isn't thrown.
+This swaps the values of a and b **without using a temporary variable.** The initial check for a and b being the same location in memory may be omitted when you know this can't happen. (The compiler may omit it anyway as an optimization.)  If you enable overflows exceptions, then pass unsigned values so an exception isn't thrown.
 
-The XOR method that follows may be slightly faster on some machines. 
-Don't use this with floating-point numbers (unless you operate on
-their raw integer representations).
+The XOR method that follows may be slightly faster on some machines. Don't use this with floating-point numbers (unless you operate on their raw integer representations).
 
-Sanjeev Sivasankaran suggested I add this on June 12, 2007.  
-Vincent Lefèvre pointed out the potential for overflow exceptions on
-July 9, 2008
+Sanjeev Sivasankaran suggested I add this on June 12, 2007. Vincent Lefèvre pointed out the potential for overflow exceptions on July 9, 2008
 
 <hr>
-
 
 <a name="SwappingValuesXOR">
 ### Swapping values with XOR
@@ -910,21 +789,9 @@ July 9, 2008
 #define SWAP(a, b) (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
 ```
  
-This is an old trick to exchange the values of the variables a and b 
-<em>without using extra space for a temporary variable</em>.
-
-On January 20, 2005, Iain A. Fleming pointed out that the macro above 
-doesn't work when you swap with the same memory location, such as
-SWAP(a[i], a[j]) with i == j.  So if that may occur, consider
-defining the macro as 
-(((a) == (b)) || (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))).
-On July 14, 2009, Hallvard Furuseth suggested that on some machines,
-(((a) ^ (b)) && ((b) ^= (a) ^= (b), (a) ^= (b))) might be faster, 
-since the (a) ^ (b) expression is reused.
+This is an old trick to exchange the values of the variables a and b **without using extra space for a temporary variable**. On January 20, 2005, Iain A. Fleming pointed out that the macro above doesn't work when you swap with the same memory location, such as `SWAP(a[i], a[j])` with `i == j`.  So if that may occur, consider defining the macro as `(((a) == (b)) || (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b))))`. On July 14, 2009, Hallvard Furuseth suggested that on some machines, `(((a) ^ (b)) && ((b) ^= (a) ^= (b), (a) ^= (b)))` might be faster, since the `(a) ^ (b)` expression is reused.
 
 <hr>
-
-
 
 <a name="SwappingBitsXOR">
 ### Swapping individual bits with XOR
@@ -940,32 +807,17 @@ unsigned int r;    // bit-swapped result goes here
 unsigned int x = ((b >> i) ^ (b >> j)) & ((1U << n) - 1); // XOR temporary
 r = b ^ ((x << i) | (x << j));
 ```
-As an example of swapping ranges of bits
-suppose we have have b = <b>001</b>0<b>111</b>1 
-(expressed in binary) and we want to swap the n = 3 consecutive bits
-starting at i = 1 (the second bit from the right) with the 3 consecutive
-bits starting at j = 5; the result would be r = 
-<b>111</b>0<b>001</b>1 (binary).
+As an example of swapping ranges of bits suppose we have have b = **001**0**111**1 (expressed in binary) and we want to swap the n = 3 consecutive bits starting at `i = 1` (the second bit from the right) with the 3 consecutive bits starting at `j = 5`; the result would be r = **111**0**001**1 (binary).
 
-This method of swapping is similar to the general purpose XOR swap
-trick, but intended for operating on individual bits.&nbsp;  The variable x 
-stores the result of XORing the pairs of bit values we want to swap, 
-and then the bits are set to the result of themselves XORed with x.&nbsp;  
-Of course, the result is undefined if the sequences overlap.
+This method of swapping is similar to the general purpose XOR swap trick, but intended for operating on individual bits.  The variable x stores the result of XORing the pairs of bit values we want to swap, and then the bits are set to the result of themselves XORed with x. Of course, the result is undefined if the sequences overlap.
 
-On July 14, 2009 Hallvard Furuseth suggested that I change the 
-1 << n to 1U << n
-because the value was being assigned to an unsigned and to avoid shifting into
-a sign bit. 
-
+On July 14, 2009 Hallvard Furuseth suggested that I change the `1 << n` to `1U << n` because the value was being assigned to an unsigned and to avoid shifting into a sign bit. 
 
 <hr>
-
 
 <a name="BitReverseObvious">
 ### Reverse bits the obvious way
 </a>
-
 
 ```c
 unsigned int v;     // input bits to be reversed
@@ -981,21 +833,13 @@ for (v >>= 1; v; v >>= 1)
 r <<= s; // shift when v's highest bits are zero
 ```
 
-
-On October 15, 2004, Michael Hoisie pointed out a bug in the original version.
-Randal E. Bryant suggested removing an extra operation on May 3, 2005.  
-Behdad Esfabod suggested a slight change that eliminated one iteration of the
-loop on May 18, 2005.  Then, on February 6, 2007, Liyong Zhou suggested a 
-better version that loops while v is not 0, so rather than iterating over 
-all bits it stops early.
+On October 15, 2004, Michael Hoisie pointed out a bug in the original version. Randal E. Bryant suggested removing an extra operation on May 3, 2005. Behdad Esfabod suggested a slight change that eliminated one iteration of the loop on May 18, 2005.  Then, on February 6, 2007, Liyong Zhou suggested a better version that loops while v is not 0, so rather than iterating over all bits it stops early.
 
 <hr>
-
 
 <a name="BitReverseTable">
 ### Reverse bits in word by lookup table
 </a>
-
 
 ```c
 static const unsigned char BitReverseTable256[256] = 
@@ -1024,19 +868,13 @@ q[1] = BitReverseTable256[p[2]];
 q[0] = BitReverseTable256[p[3]];
 ```
 
-The first method takes about 17 operations, and the second takes about 12, 
-assuming your CPU can load and store bytes easily.
-
-On July 14, 2009 Hallvard Furuseth suggested the macro compacted table.
-
+The first method takes about 17 operations, and the second takes about 12, assuming your CPU can load and store bytes easily. On July 14, 2009 Hallvard Furuseth suggested the macro compacted table.
 
 <hr>
-
 
 <a name="ReverseByteWith64BitsDiv">
 ### Reverse the bits in a byte with 3 operations (64-bit multiply and modulus division):
 </a>
-
 
 ```c
 unsigned char b; // reverse this (8-bit) byte
@@ -1044,50 +882,23 @@ unsigned char b; // reverse this (8-bit) byte
 b = (b * 0x0202020202ULL & 0x010884422010ULL) % 1023;
 ```
 
-The multiply operation creates five separate copies of the 8-bit 
-byte pattern to fan-out into a 64-bit value.
-The AND operation selects the bits that are in the correct (reversed) 
-positions, relative to each 10-bit groups of bits.
-The multiply and the AND operations copy the bits from the original 
-byte so they each appear in only one of the 10-bit sets.  
-The reversed positions of the bits from the original byte coincide with
-their relative positions within any 10-bit set.
+The multiply operation creates five separate copies of the 8-bit byte pattern to fan-out into a 64-bit value. The AND operation selects the bits that are in the correct (reversed) positions, relative to each 10-bit groups of bits. The multiply and the AND operations copy the bits from the original byte so they each appear in only one of the 10-bit sets. The reversed positions of the bits from the original byte coincide with their relative positions within any 10-bit set. The last step, which involves modulus division by `2^10 - 1`, has the effect of merging together each set of 10 bits (from positions 0-9, 10-19, 20-29, ...) in the 64-bit value. They do not overlap, so the addition steps underlying the modulus division behave like or operations.
 
-The last step, which involves modulus division by 2^10 - 1, has the
-effect of merging together each set of 10 bits 
-(from positions 0-9, 10-19, 20-29, ...) in the 64-bit value.  
-They do not overlap, so the addition steps underlying the
-modulus division behave like or operations.
-
-This method was attributed to Rich Schroeppel in the
-Programming Hacks section of 
-<a href="http://www.inwap.com/pdp10/hbaker/hakmem/hakmem.html">
-Beeler, M., Gosper, R. W., and Schroeppel, R. 
-HAKMEM. MIT AI Memo 239, Feb. 29, 1972.</a>
-
+This method was attributed to Rich Schroeppel in the Programming Hacks section of [Beeler, M., Gosper, R. W., and Schroeppel, R. HAKMEM. MIT AI Memo 239, Feb. 29, 1972.](http://www.inwap.com/pdp10/hbaker/hakmem/hakmem.html)
 
 <hr>
-
 
 <a name="ReverseByteWith64Bits">
 ### Reverse the bits in a byte with 4 operations (64-bit multiply, no division):
 </a>
-
-
-
 
 ```c
 unsigned char b; // reverse this byte
  
 b = ((b * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
 ```
-The following shows the flow of the bit values with the boolean variables 
-`a, b, c, d, e, f, g,` and `h`, which
-comprise an 8-bit byte.  Notice how the first multiply fans out the
-bit pattern to multiple copies, while the last multiply combines them
-in the fifth byte from the right.
+The following shows the flow of the bit values with the boolean variables `a, b, c, d, e, f, g,` and `h`, which comprise an 8-bit byte. Notice how the first multiply fans out the bit pattern to multiple copies, while the last multiply combines them in the fifth byte from the right.
 
-<font size="-1">
 ```c
 abcd efgh (-> hgfe dcba)
 *                                                      1000 0000  0010 0000  0000 1000  0000 0010 (0x80200802)
@@ -1112,41 +923,25 @@ abcd efgh (-> hgfe dcba)
 -------------------------------------------------------------------------------------------------
                                                                                         hgfe dcba
 ```
-</font>
 
-Note that the last two steps can be combined on some processors because 
-the registers can be accessed as bytes; 
-just multiply so that a register stores the upper 32 bits of the result 
-and the take the low byte.  Thus, it may take only 6 operations.
-
-Devised by Sean Anderson, July 13, 2001.  
-
+Note that the last two steps can be combined on some processors because the registers can be accessed as bytes; just multiply so that a register stores the upper 32 bits of the result and the take the low byte.  Thus, it may take only 6 operations. Devised by Sean Anderson, July 13, 2001.
 
 <hr>
-
-
 
 <a name="ReverseByteWith32Bits"> 
 ### Reverse the bits in a byte with 7 operations (no 64-bit):
 </a>
 
-
 ```c
 b = ((b * 0x0802LU & 0x22110LU) | (b * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16; 
 ``` 
-Make sure you assign or cast the result to an unsigned char to remove 
-garbage in the higher bits.  
-Devised by Sean Anderson, July 13, 2001.  Typo spotted and correction supplied
-by Mike Keith, January 3, 2002.
-
+Make sure you assign or cast the result to an unsigned char to remove garbage in the higher bits. Devised by Sean Anderson, July 13, 2001.  Typo spotted and correction supplied by Mike Keith, January 3, 2002.
 
 <hr>
- 
 
 <a name="ReverseParallel"> 
 ### Reverse an N-bit quantity in parallel in 5 * lg(N) operations:
 </a>
-
 
 ```c
 unsigned int v; // 32-bit word to reverse bit order
@@ -1163,9 +958,7 @@ v = ((v >> 8) & 0x00FF00FF) | ((v & 0x00FF00FF) << 8);
 v = ( v >> 16             ) | ( v               << 16);
 ```
 
-The following variation is also O(lg(N)), however it requires more 
-operations to reverse v.  Its virtue is in taking less slightly memory 
-by computing the constants on the fly.
+The following variation is also O(lg(N)), however it requires more operations to reverse v. Its virtue is in taking less slightly memory by computing the constants on the fly.
 
 ```c
 unsigned int s = sizeof(v) * CHAR_BIT; // bit size; must be power of 2 
@@ -1177,27 +970,13 @@ while ((s >>= 1) > 0)
 }
 ```
 
-These methods above are best suited to situations where N is large.
-If you use the above with 64-bit ints (or larger), then you need
-to add more lines (following the pattern); otherwise only the lower
-32 bits will be reversed and the result will be in the lower 32 bits.
-
- 
-See Dr. Dobb's Journal 1983, Edwin Freed's article on Binary Magic 
-Numbers for more information.  The second variation was suggested
-by Ken Raeburn on September 13, 2005.  Veldmeijer mentioned that
-the first version could do without ANDS in the last line
-on March 19, 2006.
-
-
+These methods above are best suited to situations where N is large. If you use the above with 64-bit ints (or larger), then you need to add more lines (following the pattern); otherwise only the lower 32 bits will be reversed and the result will be in the lower 32 bits. See Dr. Dobb's Journal 1983, Edwin Freed's article on Binary Magic Numbers for more information.  The second variation was suggested by Ken Raeburn on September 13, 2005. Veldmeijer mentioned that the first version could do without ANDS in the last line on March 19, 2006.
 
 <hr>
-
 
 <a name="ModulusDivisionEasy">
 ### Compute modulus division by 1 << s without a division operator
 </a>
-
 
 ```c
 const unsigned int n;          // numerator
@@ -1207,17 +986,13 @@ unsigned int m;                // m will be n % d
 m = n & (d - 1); 
 ```
 
-Most programmers learn this trick early, but it was included for the 
-sake of completeness.
-
+Most programmers learn this trick early, but it was included for the sake of completeness.
 
 <hr>
-
 
 <a name="ModulusDivision">
 ### Compute modulus division by (1 << s) - 1 without a division operator
 </a>
-
 
 ```c
 unsigned int n;                      // numerator
@@ -1236,28 +1011,13 @@ for (m = 0; n; n >>= s)
 // we want m to be 0 when it is d.
 m = m == d ? 0 : m;
 ```
-
-This method of modulus division by an integer that is one less than a power
-of 2 takes at most 
-5 + (4 + 5 * ceil(N / s)) * ceil(lg(N / s)) operations, where N is the 
-number of bits in the numerator.  In other words, it takes at most 
-O(N * lg(N)) time.
-
-
-Devised by Sean Anderson, August 15, 2001.  Before Sean A. Irvine corrected me
-on June 17, 2004, I mistakenly commented that we could alternatively assign 
-`m = ((m + 1) & d) - 1;` at the end.  Michael Miller spotted a
-typo in the code April 25, 2005.
-
+This method of modulus division by an integer that is one less than a power of 2 takes at most 5 + (4 + 5 * ceil(N / s)) * ceil(lg(N / s)) operations, where N is the number of bits in the numerator. In other words, it takes at most O(N * lg(N)) time. Devised by Sean Anderson, August 15, 2001.  Before Sean A. Irvine corrected me on June 17, 2004, I mistakenly commented that we could alternatively assign `m = ((m + 1) & d) - 1;` at the end.  Michael Miller spotted a typo in the code April 25, 2005.
 
 <hr>
 
-
 <a name="ModulusDivisionParallel">
-### Compute modulus division by (1 << s) - 1 in parallel without a division 
-operator 
+### Compute modulus division by (1 << s) - 1 in parallel without a division operator 
 </a>
-
 
 ```c
 // The following is for a word size of 32 bits!
@@ -1339,49 +1099,18 @@ m = (m >> *q) + (m & *r);
 m = m == d ? 0 : m; // OR, less portably: m = m & -((signed)(m - d) >> s);
 ```
 
-This method of finding modulus division by an integer that is one less 
-than a power of 2 takes at most O(lg(N)) time, where N is the number of
-bits in the numerator (32 bits, for the code above).  
-The number of operations is at most 12 + 9 * ceil(lg(N)).
+This method of finding modulus division by an integer that is one less than a power of 2 takes at most O(lg(N)) time, where N is the number of bits in the numerator (32 bits, for the code above). The number of operations is at most 12 + 9 * ceil(lg(N)).
 
-The tables may be removed if you know
-the denominator at compile time; just extract the few relevent entries
-and unroll the loop.  It may be easily extended to more bits.
+The tables may be removed if you know the denominator at compile time; just extract the few relevent entries and unroll the loop.  It may be easily extended to more bits. It finds the result by summing the values in base `(1 << s)` in parallel. First every other base `(1 << s)` value is added to the previous one.Imagine that the result is written on a piece of paper.  Cut the paper in half, so that half the values are on each cut piece. Align the values and sum them onto a new piece of paper.  Repeat by cutting this paper in half (which will be a quarter of the size of the previous one) and summing, until you cannot cut further.  After performing `lg(N/s/2)` cuts, we cut no more; just continue to add the values and put the result onto a new piece of paper as before, while there are at least two s-bit values.
 
-It finds the result by summing the values in base (1 << s) in parallel.
-First every other base (1 << s) value is added to the previous one.
-Imagine that the result is written on a piece of paper.  Cut the paper
-in half, so that half the values are on each cut piece.  Align the values
-and sum them onto a new piece of paper.  Repeat by cutting this paper 
-in half (which will be a quarter of the size of the previous one) 
-and summing, until you cannot cut further.  After performing lg(N/s/2)
-cuts, we cut no more; just continue to add the values and put the result 
-onto a new piece of paper as before, while there are at least two s-bit
-values.
-
-
-Devised by Sean Anderson, August 20, 2001.  A typo was spotted by 
-Randy E. Bryant on May 3, 2005 (after pasting the code, I had later 
-added "unsinged" to a variable declaration).  As in the previous hack,
-I mistakenly commented that we could alternatively assign 
-`m = ((m + 1) & d) - 1;` at the end, and Don Knuth corrected 
-me on April 19, 2006 and suggested 
-`m = m & -((signed)(m - d) >> s)`.  
-On June 18, 2009 Sean Irvine proposed a change that used
-`((n >> s) & M[s])` instead of 
-`((n & ~M[s]) >> s)`,
-which typically requires fewer operations because the M[s] constant is already 
-loaded.
-
+Devised by Sean Anderson, August 20, 2001.  A typo was spotted by Randy E. Bryant on May 3, 2005 (after pasting the code, I had later added "unsinged" to a variable declaration).  As in the previous hack, I mistakenly commented that we could alternatively assign `m = ((m + 1) & d) - 1;` at the end, and Don Knuth corrected me on April 19, 2006 and suggested `m = m & -((signed)(m - d) >> s)`. On June 18, 2009 Sean Irvine proposed a change that used `((n >> s) & M[s])` instead of `((n & ~M[s]) >> s)`, which typically requires fewer operations because the M[s] constant is already loaded.
 
 <hr>
 
 
 <a name="IntegerLogObvious"> 
-### Find the log base 2 of an integer with the MSB N set in O(N) operations
-(the obvious way)
+### Find the log base 2 of an integer with the MSB N set in O(N) operations (the obvious way)
 </a>
-
 
 ```c
 unsigned int v; // 32-bit word to find the log base 2 of
@@ -1393,18 +1122,13 @@ while (v >>= 1) // unroll for more speed...
 }
 ```
 
-The log base 2 of an integer is the same as the position of the highest 
-bit set (or most significant bit set, MSB).  The following log base 2 
-methods are faster than this one.
-
+The log base 2 of an integer is the same as the position of the highest bit set (or most significant bit set, MSB). The following log base 2 methods are faster than this one.
 
 <hr>
- 
 
 <a name="IntegerLogIEEE64Float">
 ### Find the integer log base 2 of an integer with an 64-bit IEEE float
 </a>
-
 
 ```c
 int v; // 32-bit integer to find the log base 2 of
@@ -1417,31 +1141,15 @@ t.d -= 4503599627370496.0;
 r = (t.u[__FLOAT_WORD_ORDER==LITTLE_ENDIAN] >> 20) - 0x3FF;
 ```
 
-The code above loads a 64-bit (IEEE-754 floating-point) double with 
-a 32-bit integer (with no paddding bits) by storing the integer in the 
-mantissa while the exponent is set to 2<sup>52</sup>.  
-From this newly minted double,
-2<sup>52</sup> (expressed as a double) is subtracted, which sets the 
-resulting exponent to the log base 2 of the input value, v.  All that is 
-left is shifting the exponent bits into position (20 bits right) and 
-subtracting the bias, 0x3FF (which is 1023 decimal).  This technique
-only takes 5 operations, but many CPUs are slow at manipulating doubles, 
-and the endianess of the architecture must be accommodated.
+The code above loads a 64-bit (IEEE-754 floating-point) double with a 32-bit integer (with no paddding bits) by storing the integer in the mantissa while the exponent is set to 2<sup>52</sup>. From this newly minted double, 2<sup>52</sup> (expressed as a double) is subtracted, which sets the resulting exponent to the log base 2 of the input value, v.  All that is left is shifting the exponent bits into position (20 bits right) and subtracting the bias, 0x3FF (which is 1023 decimal). This technique only takes 5 operations, but many CPUs are slow at manipulating doubles, and the endianess of the architecture must be accommodated.
 
-Eric Cole sent me this on January 15, 2006.  Evan Felix pointed out a typo
-on April 4, 2006.  Vincent Lefèvre told me on July 9, 2008 to 
-change the endian check to use the float's endian, which could differ
-from the integer's endian.
-
+Eric Cole sent me this on January 15, 2006.  Evan Felix pointed out a typo on April 4, 2006.  Vincent Lefèvre told me on July 9, 2008 to change the endian check to use the float's endian, which could differ from the integer's endian.
 
 <hr>
-
 
 <a name="IntegerLogLookup">
 ### Find the log base 2 of an integer with a lookup table
 </a>
-
-
 ```c
 static const char LogTable256[256] = 
 {
@@ -1465,15 +1173,7 @@ r = (t = v >> 8) ? 8 + LogTable256[t] : LogTable256[v];
 }
 ```
 
-The lookup table method takes only about 7 operations to find the log of
-a 32-bit value.  If extended for 64-bit quantities, it would take roughly 
-9 operations.  Another operation can be trimmed off by using four tables, 
-with the possible additions incorporated into each.  Using int table 
-elements may be faster, depending on your architecture.
-
-The code above is tuned to uniformly distributed <em>output</em> values.  
-If your <em>inputs</em> are evenly distributed across all 32-bit values, 
-then consider using the following:
+The lookup table method takes only about 7 operations to find the log of a 32-bit value.  If extended for 64-bit quantities, it would take roughly 9 operations.  Another operation can be trimmed off by using four tables, with the possible additions incorporated into each.  Using int table elements may be faster, depending on your architecture.The code above is tuned to uniformly distributed **output** values. If your **inputs** are evenly distributed across all 32-bit values, then consider using the following:
 
 ```c
 if (tt = v >> 24) 
@@ -1504,14 +1204,9 @@ for (int i = 2; i < 256; i++)
 LogTable256[0] = -1; // if you want log(0) to return -1
 ```
 
-Behdad Esfahbod and I shaved off a fraction of an operation (on average) on
-May 18, 2005.  Yet another fraction of an operation was removed on November
-14, 2006 by Emanuel Hoogeveen.  The variation that is tuned to evenly 
-distributed input values was suggested by David A. Butterfield on September
-19, 2008.  Venkat Reddy told me on January 5, 2009 that log(0) should return
--1 to indicate an error, so I changed the first entry in the table to that.
+Behdad Esfahbod and I shaved off a fraction of an operation (on average) on May 18, 2005.  Yet another fraction of an operation was removed on November 14, 2006 by Emanuel Hoogeveen.  The variation that is tuned to evenly distributed input values was suggested by David A. Butterfield on September 19, 2008.  Venkat Reddy told me on January 5, 2009 that log(0) should return -1 to indicate an error, so I changed the first entry in the table to that.
+
 <hr>
- 
 
 <a name="IntegerLog"> 
 ### Find the log base 2 of an N-bit integer in O(lg(N)) operations
@@ -1560,37 +1255,15 @@ for (i = 4; i > 0; i--) // unroll for speed...
 }
 ```
 
-Of course, to extend the code to find the log of a 33- to 64-bit 
-number, we would append another element, 0xFFFFFFFF00000000, to b,
-append 32 to S, and loop from 5 to 0.  This method is much slower
-than the earlier table-lookup version, but if you don't want big table
-or your architecture is slow to access memory, it's a good choice.
-The second variation involves slightly more operations, but it may be 
-faster on machines with high branch costs (e.g. PowerPC).
+Of course, to extend the code to find the log of a 33- to 64-bit number, we would append another element, `0xFFFFFFFF00000000`, to b, append 32 to S, and loop from 5 to 0. This method is much slower than the earlier table-lookup version, but if you don't want big table or your architecture is slow to access memory, it's a good choice. The second variation involves slightly more operations, but it may be faster on machines with high branch costs (e.g. PowerPC).
 
-The second version was sent to me by 
-<a href="http://www.balance-software.com/ec/">Eric Cole</a> 
-on January 7, 2006.  Andrew Shapira subsequently trimmed a few operations
-off of it and sent me his variation (above) on Sept. 1, 2007.
-The third variation was suggested to me by 
-<a href="http://www.ece.ucdavis.edu/~jowens/">John Owens</a> 
-on April 24, 2002; it's faster, but 
-<em>it is only suitable when the input is known to be a power of 2</em>.
-On May 25, 2003, Ken Raeburn suggested improving the general case by 
-using smaller numbers for b[], which load faster on some architectures
-(for instance if the word size is 16 bits, then only one load instruction 
-may be needed).  These values work for the general version, but not for 
-the special-case version below it, where v is a power of 2; Glenn Slayden 
-brought this oversight to my attention on December 12, 2003.
-
+The second version was sent to me by [Eric Cole](http://www.balance-software.com/ec/) on January 7, 2006.  Andrew Shapira subsequently trimmed a few operations off of it and sent me his variation (above) on Sept. 1, 2007. The third variation was suggested to me by [John Owens](http://www.ece.ucdavis.edu/~jowens/) on April 24, 2002; it's faster, but **it is only suitable when the input is known to be a power of 2**. On May 25, 2003, Ken Raeburn suggested improving the general case by using smaller numbers for `b[]`, which load faster on some architectures (for instance if the word size is 16 bits, then only one load instruction may be needed).  These values work for the general version, but not for the special-case version below it, where v is a power of 2; Glenn Slayden brought this oversight to my attention on December 12, 2003.
 
 <hr>
-
 
 <a name="IntegerLogDeBruijn">
 ### Find the log base 2 of an N-bit integer in O(lg(N)) operations with multiply and lookup
 </a>
-
 
 ```c
 uint32_t v; // find the log base 2 of 32-bit v
@@ -1610,13 +1283,7 @@ v |= v >> 16;
 
 r = MultiplyDeBruijnBitPosition[(uint32_t)(v * 0x07C4ACDDU) >> 27];
 ```
-The code above computes the log base 2 of a 32-bit integer with
-a small table lookup and multiply.  It requires only 13 operations,
-compared to (up to) 20 for the previous method.  The purely table-based 
-method requires the fewest operations, but this offers a
-reasonable compromise between table size and speed.  
-
-If you know that v is a power of 2, then you only need the following:
+The code above computes the log base 2 of a 32-bit integer with a small table lookup and multiply. It requires only 13 operations, compared to (up to) 20 for the previous method. The purely table-based method requires the fewest operations, but this offers a reasonable compromise between table size and speed. If you know that v is a power of 2, then you only need the following:
 
 ```c
 static const int MultiplyDeBruijnBitPosition2[32] = 
@@ -1627,24 +1294,13 @@ static const int MultiplyDeBruijnBitPosition2[32] =
 r = MultiplyDeBruijnBitPosition2[(uint32_t)(v * 0x077CB531U) >> 27];
 ```
 
-
-Eric Cole devised this January 8, 2006 after reading about the entry
-below to <a href="http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2">round up to a power of 2</a> and 
-the method below for 
-<a href="http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup">computing the number of trailing bits
-with a multiply and lookup</a> using a DeBruijn sequence.
-On December 10, 2009, Mark Dickinson shaved off a couple operations 
-by requiring v be rounded up to one less than the next power of 2 
-rather than the power of 2.
-
+Eric Cole devised this January 8, 2006 after reading about the entry below to [round up to a power of 2](http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2) and the method below for [computing the number of trailing bits with a multiply and lookup](http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup) using a DeBruijn sequence. On December 10, 2009, Mark Dickinson shaved off a couple operations by requiring v be rounded up to one less than the next power of 2 rather than the power of 2.
 
 <hr>
-
 
 <a name="IntegerLog10">
 ### Find integer log base 10 of an integer
 </a>
-
 
 ```c
 unsigned int v; // non-zero 32-bit integer value to compute the log base 10 of 
@@ -1659,32 +1315,15 @@ static unsigned int const PowersOf10[] =
 r = t - (v < PowersOf10[t]);
 ```
 
-The integer log base 10 is computed by first using one of the techniques above 
-for finding the log base 2.  By the relationship 
-log<sub>10</sub>(v) = log<sub>2</sub>(v) / log<sub>2</sub>(10), we need to
-multiply it by 1/log<sub>2</sub>(10), which is approximately 1233/4096, or
-1233 followed by a right shift of 12.  Adding one is needed because the
-IntegerLogBase2 rounds down.  Finally, since the value t is only an 
-approximation that may be off by one, the exact value is found by 
-subtracting the result of v < PowersOf10[t].
+The integer log base 10 is computed by first using one of the techniques above for finding the log base 2. By the relationship log<sub>10</sub>(v) = log<sub>2</sub>(v) / log<sub>2</sub>(10), we need to multiply it by 1/log<sub>2</sub>(10), which is approximately 1233/4096, or 1233 followed by a right shift of 12.  Adding one is needed because the IntegerLogBase2 rounds down.  Finally, since the value t is only an approximation that may be off by one, the exact value is found by subtracting the result of `v < PowersOf10[t]`.
 
-This method takes 6 more operations than
-IntegerLogBase2.  It may be sped up (on machines with fast memory access)
-by modifying the log base 2 table-lookup method above so that the entries
-hold what is computed for t (that is, pre-add, -mulitply, and -shift).
-Doing so would require a total of only 9 operations to find the log base 10,
-assuming 4 tables were used (one for each byte of v).
-
-Eric Cole suggested I add a version of this on January 7, 2006.
-
+This method takes 6 more operations than IntegerLogBase2. It may be sped up (on machines with fast memory access) by modifying the log base 2 table-lookup method above so that the entries hold what is computed for t (that is, pre-add, -mulitply, and -shift). Doing so would require a total of only 9 operations to find the log base 10, assuming 4 tables were used (one for each byte of v).Eric Cole suggested I add a version of this on January 7, 2006.
 
 <hr>
-
 
 <a name="IntegerLog10Obvious">
 ### Find integer log base 10 of an integer the obvious way
 </a>
-
 
 ```c
 unsigned int v; // non-zero 32-bit integer value to compute the log base 10 of 
@@ -1695,22 +1334,13 @@ r = (v >= 1000000000) ? 9 : (v >= 100000000) ? 8 : (v >= 10000000) ? 7 :
 (v >= 1000) ? 3 : (v >= 100) ? 2 : (v >= 10) ? 1 : 0;
 ```
 
-This method works well when the input is uniformly distributed over 32-bit
-values because 76% of the inputs are caught by the first compare, 21%
-are caught by the second compare, 2% are caught by the third, and so on
-(chopping the remaining down by 90% with each comparision).  
-As a result, less than 2.6 operations are needed on average.
-
-On April 18, 2007, Emanuel Hoogeveen suggested a variation on this where
-the conditions used divisions, which were not as fast as simple comparisons.
+This method works well when the input is uniformly distributed over 32-bit values because 76% of the inputs are caught by the first compare, 21% are caught by the second compare, 2% are caught by the third, and so on (chopping the remaining down by 90% with each comparision). As a result, less than 2.6 operations are needed on average. On April 18, 2007, Emanuel Hoogeveen suggested a variation on this where the conditions used divisions, which were not as fast as simple comparisons.
 
 <hr>
-
 
 <a name="IntegerLogFloat"> 
 ### Find integer log base 2 of a 32-bit IEEE float 
 </a>
-
 
 ```c
 const float v; // find int(log2(v)), where v > 0.0 && finite(v) && isnormal(v)
@@ -1720,14 +1350,7 @@ c = *(const int *) &v;  // OR, for portability:  memcpy(&c, &v, sizeof c);
 c = (c >> 23) - 127;
 ```
 
-The above is fast, but IEEE 754-compliant architectures utilize 
-<em>subnormal</em> (also called <em>denormal</em>) 
-floating point numbers.  These have the exponent bits set to zero 
-(signifying pow(2,-127)), 
-and the mantissa is not normalized, so it contains leading zeros and
-thus the log2 must be computed from the mantissa.  To accomodate for
-subnormal numbers, use the following:
-
+The above is fast, but IEEE 754-compliant architectures utilize **subnormal** (also called **denormal**) floating point numbers.  These have the exponent bits set to zero (signifying `pow(2,-127)`), and the mantissa is not normalized, so it contains leading zeros and thus the log2 must be computed from the mantissa.  To accomodate for subnormal numbers, use the following:
 ```c
 const float v;              // find int(log2(v)), where v > 0.0 && finite(v)
 int c;                      // 32-bit int c gets the result;
@@ -1754,22 +1377,13 @@ else
 }
 ```
 
-On June 20, 2004, Sean A. Irvine suggested that I include code to handle
-subnormal numbers.  On June 11, 2005, Falk Hüffner pointed out that 
-ISO C99 6.5/7 specified undefined behavior for the common type punning idiom 
-*(int *)&, though it has worked on 99.9% of C compilers.  
-He proposed using memcpy for maximum portability or a union with a float
-and an int for better code generation than memcpy on some compilers.
-
+On June 20, 2004, Sean A. Irvine suggested that I include code to handle subnormal numbers.  On June 11, 2005, Falk Hüffner pointed out that ISO C99 6.5/7 specified undefined behavior for the common type punning idiom `*(int *)&`, though it has worked on 99.9% of C compilers. He proposed using memcpy for maximum portability or a union with a float and an int for better code generation than memcpy on some compilers.
 
 <hr>
 
-
 <a name="IntegerLogRootFloat"> 
-### Find integer log base 2 of the pow(2, r)-root of a 32-bit IEEE float 
-(for unsigned integer r)
+### Find integer log base 2 of the pow(2, r)-root of a 32-bit IEEE float (for unsigned integer r)
 </a>
-
 
 ```c
 const int r;
@@ -1781,23 +1395,18 @@ c = *(const int *) &v;  // OR, for portability:  memcpy(&c, &v, sizeof c);
 c = ((((c - 0x3f800000) >> r) + 0x3f800000) >> 23) - 127;
 ```
 
-So, if r is 0, for example, we have c = int(log2((double) v)).  
-If r is 1, then we have c = int(log2(sqrt((double) v))).
-If r is 2, then we have c = int(log2(pow((double) v, 1./4))).
+So,
+if r is 0, for example, we have `c = int(log2((double) v))`.  
+If r is 1, then we have `c = int(log2(sqrt((double) v)))`.  
+If r is 2, then we have `c = int(log2(pow((double) v, 1./4)))`.
 
-
-On June 11, 2005, Falk Hüffner pointed out that 
-ISO C99 6.5/7 left the type punning idiom *(int *)& undefined,
-and he suggested using memcpy.  
-
+On June 11, 2005, Falk Hüffner pointed out that ISO C99 6.5/7 left the type punning idiom *(int *)& undefined, and he suggested using memcpy.
 
 <hr>
-
 
 <a name="ZerosOnRightLinear">
 ### Count the consecutive zero bits (trailing) on the right linearly
 </a>
-
 
 ```c
 unsigned int v;  // input to count trailing zero bits
@@ -1816,21 +1425,13 @@ else
   c = CHAR_BIT * sizeof(v);
 }
 ```
-The average number of trailing zero bits in a (uniformly distributed) 
-random binary number is one, so this O(trailing zeros) solution isn't 
-that bad compared to the faster methods below.
-
-
-Jim Cole suggested I add a linear-time method for counting the trailing zeros on August 15, 2007.  On October 22, 2007, Jason Cunningham pointed out that
-I had neglected to paste the unsigned modifier for v.
+The average number of trailing zero bits in a (uniformly distributed) random binary number is one, so this O(trailing zeros) solution isn't that bad compared to the faster methods below. Jim Cole suggested I add a linear-time method for counting the trailing zeros on August 15, 2007.  On October 22, 2007, Jason Cunningham pointed out that I had neglected to paste the unsigned modifier for v.
 
 <hr>
-
 
 <a name="ZerosOnRightParallel">
 ### Count the consecutive zero bits (trailing) on the right in parallel
 </a>
-
 
 ```c
 unsigned int v;      // 32-bit word input to count zero bits on right
@@ -1844,22 +1445,13 @@ if (v & 0x33333333) c -= 2;
 if (v & 0x55555555) c -= 1;
 ```
 
-Here, we are basically doing the same operations as finding the log base 2 
-in parallel, but we first isolate the lowest 1 bit, and then proceed with
-c starting at the maximum and decreasing.  
-The number of operations is at most 3 * lg(N) + 4, roughly, for N bit words.
-
-Bill Burdick suggested an optimization, reducing the time from 4 * lg(N) on 
-February 4, 2011.
-
+Here, we are basically doing the same operations as finding the log base 2 in parallel, but we first isolate the lowest 1 bit, and then proceed with c starting at the maximum and decreasing. The number of operations is at most 3 * lg(N) + 4, roughly, for N bit words. Bill Burdick suggested an optimization, reducing the time from 4 * lg(N) on February 4, 2011.
 
 <hr>
-
 
 <a name="ZerosOnRightBinSearch">
 ### Count the consecutive zero bits (trailing) on the right by binary search
 </a>
-
 
 ```c
 unsigned int v;     // 32-bit word input to count zero bits on right
@@ -1898,28 +1490,13 @@ else
 }	
 ```
 
-The code above is similar to the previous method, but it computes the number
-of trailing zeros by accumulating c in a manner akin to binary search.
-In the first step, it checks if the bottom 16 bits of v are zeros, 
-and if so, shifts v right 16 bits and adds 16 to c, which reduces the 
-number of bits in v to consider by half.  Each of the subsequent 
-conditional steps likewise halves the number of bits until there is only 1.
-This method is faster than the last one (by about 33%) because the bodies 
-of the if statements are executed less often.
-
-Matt Whitlock suggested this on January 25, 2006.  Andrew Shapira shaved
-a couple operations off on Sept. 5, 2007 (by setting c=1 and unconditionally
-subtracting at the end).
-
+The code above is similar to the previous method, but it computes the number of trailing zeros by accumulating c in a manner akin to binary search. In the first step, it checks if the bottom 16 bits of v are zeros, and if so, shifts v right 16 bits and adds 16 to c, which reduces the number of bits in v to consider by half.  Each of the subsequent conditional steps likewise halves the number of bits until there is only 1. This method is faster than the last one (by about 33%) because the bodies of the if statements are executed less often. Matt Whitlock suggested this on January 25, 2006.  Andrew Shapira shaved a couple operations off on Sept. 5, 2007 (by setting c=1 and unconditionally subtracting at the end).
 
 <hr>
 
-
 <a name="ZerosOnRightFloatCast">
-### Count the consecutive zero bits (trailing)
-on the right by casting to a float
+### Count the consecutive zero bits (trailing) on the right by casting to a float
 </a>
-
 
 ```c
 unsigned int v;            // find the number of trailing zeros in v
@@ -1928,22 +1505,13 @@ float f = (float)(v & -v); // cast the least significant bit in v to a float
 r = (*(uint32_t *)&f >> 23) - 0x7f;
 ```
 
-Although this only takes about 6 operations, the time to convert
-an integer to a float can be high on some machines.  
-The exponent of the 32-bit IEEE floating point 
-representation is shifted down, and the bias is subtracted to give
-the position of the least significant 1 bit set in v.
-If v is zero, then the result is -127.  
-
+Although this only takes about 6 operations, the time to convert an integer to a float can be high on some machines. The exponent of the 32-bit IEEE floating point representation is shifted down, and the bias is subtracted to give the position of the least significant 1 bit set in v. If v is zero, then the result is `-127`.
 
 <hr>
 
-
 <a name="ZerosOnRightModLookup">
-### Count the consecutive zero bits (trailing)
-on the right with modulus division and lookup
+### Count the consecutive zero bits (trailing) on the right with modulus division and lookup
 </a>
-
 
 ```c
 unsigned int v;  // find the number of trailing zeros in v
@@ -1957,26 +1525,13 @@ static const int Mod37BitPosition[] = // map a bit value mod 37 to its position
 r = Mod37BitPosition[(-v & v) % 37];
 ```
 
-The code above finds the number of zeros that are trailing on the right, so
-binary 0100 would produce 2.  It makes use of the fact that the first 32
-bit position values are relatively prime with 37, so performing a modulus 
-division with 37 gives a unique number from 0 to 36 for each.  These numbers
-may then be mapped to the number of zeros using a small lookup table.  
-It uses only 4 operations, however indexing into a table and performing modulus
-division may make it unsuitable for some situations.
-I came up with this independently and then searched for a subsequence of 
-the table values, and found it was invented earlier by Reiser, according to 
-<a href="http://www.hackersdelight.org/HDcode/ntz.c.txt">Hacker's Delight</a>.
-
+The code above finds the number of zeros that are trailing on the right, so binary 0100 would produce 2.  It makes use of the fact that the first 32 bit position values are relatively prime with 37, so performing a modulus division with 37 gives a unique number from 0 to 36 for each.  These numbers may then be mapped to the number of zeros using a small lookup table. It uses only 4 operations, however indexing into a table and performing modulus division may make it unsuitable for some situations. I came up with this independently and then searched for a subsequence of the table values, and found it was invented earlier by Reiser, according to [Hacker's Delight](http://www.hackersdelight.org/HDcode/ntz.c.txt).
 
 <hr>
 
-
 <a name="ZerosOnRightMultLookup">
-### Count the consecutive zero bits (trailing)
-on the right with multiply and lookup
+### Count the consecutive zero bits (trailing) on the right with multiply and lookup
 </a>
-
 
 ```c
 unsigned int v;  // find the number of trailing zeros in 32-bit v 
@@ -1989,31 +1544,15 @@ static const int MultiplyDeBruijnBitPosition[32] =
 r = MultiplyDeBruijnBitPosition[((uint32_t)((v & -v) * 0x077CB531U)) >> 27];
 ```
 
-Converting bit vectors to indices of set bits is an example use for this.  
-It requires one more operation than the earlier one involving
-modulus division, but the multiply may be faster.  The expression 
-(v & -v) extracts the least significant 1 bit from v.  The constant 
-0x077CB531UL is a de Bruijn sequence, which produces a unique pattern 
-of bits into the high 5 bits for each possible bit position that it is 
-multiplied against.  When there are no bits set, it returns 0.  
-More information can be found by reading the paper
-<a href="http://citeseer.ist.psu.edu/leiserson98using.html">Using
-de Bruijn Sequences to Index 1 in a Computer Word</a> by Charles E.
-Leiserson, Harald Prokof, and Keith H. Randall.  
+Converting bit vectors to indices of set bits is an example use for this. It requires one more operation than the earlier one involving modulus division, but the multiply may be faster.  The expression  `(v & -v)` extracts the least significant 1 bit from v.  The constant `0x077CB531UL` is a de Bruijn sequence, which produces a unique pattern of bits into the high 5 bits for each possible bit position that it is multiplied against.  When there are no bits set, it returns 0. More information can be found by reading the paper [Using de Bruijn Sequences to Index 1 in a Computer Word](http://citeseer.ist.psu.edu/leiserson98using.html) by Charles E. Leiserson, Harald Prokof, and Keith H. Randall.  
 
-On October 8, 2005 <a href="http://onezero.org/">Andrew Shapira</a> 
-suggested I add this.  Dustin Spicuzza asked me on April 14, 2009 to 
-cast the result of the multiply to a 32-bit type so it would work when 
-compiled with 64-bit ints.
-
+On October 8, 2005 [Andrew Shapira](http://onezero.org/) suggested I add this. Dustin Spicuzza asked me on April 14, 2009 to cast the result of the multiply to a 32-bit type so it would work when compiled with 64-bit ints.
 
 <hr>
-
 
 <a name="RoundUpPowerOf2Float">
 ### Round up to the next highest power of 2 by float casting
 </a>
-
 
 ```c
 unsigned int const v; // Round this 32-bit value to the next highest power of 2
@@ -2030,35 +1569,22 @@ else
   r = 1;
 }
 ```
-The code above uses 8 operations, but works on all v <= (1<<31).
+The code above uses 8 operations, but works on all `v <= (1<<31)`.
 
-Quick and dirty version, for domain of 1 < v < (1<<25):
+Quick and dirty version, for domain of `1 < v < (1<<25)`:
 
 ```c
 float f = (float)(v - 1);  
 r = 1U << ((*(unsigned int*)(&f) >> 23) - 126);
 ```
-Although the quick and dirty version only uses around 6 operations, 
-it is roughly three times slower than the 
-<a href="http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2">technique below</a> 
-(which involves 12 operations) when 
-benchmarked on an Athlon™ XP 2100+ CPU.  Some CPUs will fare
-better with it, though.
 
-On September 27, 2005 Andi Smithers suggested I include a technique 
-for casting to floats to find the lg of a number for rounding up to
-a power of 2.  Similar to the quick and dirty version here, 
-his version worked with values less than (1<<25), due to mantissa 
-rounding, but it used one more operation.
-
+Although the quick and dirty version only uses around 6 operations, it is roughly three times slower than the [technique below](http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2) (which involves 12 operations) when benchmarked on an Athlon™ XP 2100+ CPU.  Some CPUs will farebetter with it, though. On September 27, 2005 Andi Smithers suggested I include a technique for casting to floats to find the lg of a number for rounding up to a power of 2.  Similar to the quick and dirty version here, his version worked with values less than (1<<25), due to mantissa rounding, but it used one more operation.
 
 <hr>
-
 
 <a name="RoundUpPowerOf2">
 ### Round up to the next highest power of 2
 </a>
-
 
 ```c
 unsigned int v; // compute the next highest power of 2 of 32-bit v
@@ -2072,39 +1598,9 @@ v |= v >> 16;
 v++;
 ```
 
-In 12 operations, this code computes the next highest power of 2 for a 
-32-bit integer.
-The result may be expressed by the formula 1U << (lg(v - 1) + 1).  
-Note that in the edge case where v is 0, it returns 0, which isn't a
-power of 2; you might append the expression v += (v == 0) to remedy this
-if it matters.
-It would be faster by 2 operations to use the formula and the 
-log base 2 method that uses a lookup table, 
-but in some situations, lookup tables are not suitable, so the above code
-may be best.  (On a Athlon™ XP 2100+ I've found the above shift-left 
-and then OR code is as fast as using a single BSR assembly language 
-instruction, which scans in reverse to find the highest set bit.)
-It works by copying the highest set bit to all of the lower 
-bits, and then adding one, which results in carries that set all of the lower
-bits to 0 and one bit beyond the highest set bit to 1.  If the original
-number was a power of 2, then the decrement will reduce it to one less, so
-that we round up to the same original value.
-
-You might alternatively compute the next higher power of 2 
-in only 8 or 9 operations using a lookup table for 
-floor(lg(v)) and then evaluating 1<<(1+floor(lg(v))); 
-Atul Divekar suggested I mention this on September 5, 2010.
-
-Devised by Sean Anderson, Sepember 14, 2001.  
-Pete Hart 
-pointed me to 
-<a href="http://groups.google.com/group/comp.lang.python/browse_thread/thread/c4d3aae0df917df5/6fdae3872f9de79d?lnk=st&q=comp.lang.python+zeddy&rnum=6#6fdae3872f9de79d">a 
-couple newsgroup posts</a> by him and William Lewis in February of 1997,
-where they arrive at the same algorithm.
-
+In 12 operations, this code computes the next highest power of 2 for a 32-bit integer. The result may be expressed by the formula `1U << (lg(v - 1) + 1)`. Note that in the edge case where v is 0, it returns 0, which isn't a power of 2; you might append the expression `v += (v == 0)` to remedy this if it matters. It would be faster by 2 operations to use the formula and the log base 2 method that uses a lookup table, but in some situations, lookup tables are not suitable, so the above code may be best. (On a Athlon™ XP 2100+ I've found the above shift-left and then OR code is as fast as using a single BSR assembly language instruction, which scans in reverse to find the highest set bit.) It works by copying the highest set bit to all of the lower bits, and then adding one, which results in carries that set all of the lower bits to 0 and one bit beyond the highest set bit to 1.  If the original number was a power of 2, then the decrement will reduce it to one less, so that we round up to the same original value. You might alternatively compute the next higher power of 2 in only 8 or 9 operations using a lookup table for `floor(lg(v))` and then evaluating `1<<(1+floor(lg(v)))`; Atul Divekar suggested I mention this on September 5, 2010. Devised by Sean Anderson, Sepember 14, 2001. Pete Hart pointed me to [a couple newsgroup posts](http://groups.google.com/group/comp.lang.python/browse_thread/thread/c4d3aae0df917df5/6fdae3872f9de79d?lnk=st&q=comp.lang.python+zeddy&rnum=6#6fdae3872f9de79d) by him and William Lewis in February of 1997, where they arrive at the same algorithm.
 
 <hr>
-
 
 <a name="InterleaveTableObvious">
 ### Interleave bits the obvious way
