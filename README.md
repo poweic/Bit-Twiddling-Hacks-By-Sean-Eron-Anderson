@@ -2461,7 +2461,9 @@ works in 4 operations and requires no subsquent verification.  It simplifies
 to 
 
 ```c
-#define haszero(v) (((v) - 0x01010101UL) & ~(v) & 0x80808080UL)```
+#define haszero(v) (((v) - 0x01010101UL) & ~(v) & 0x80808080UL)
+```
+
 The subexpression (v - 0x01010101UL), evaluates to a high bit set in any
 byte whenever the corresponding byte in v is zero or greater than 0x80.  
 The sub-expression ~v & 0x80808080UL 
