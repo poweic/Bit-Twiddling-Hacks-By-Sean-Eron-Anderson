@@ -104,13 +104,7 @@ sign = -(int)((unsigned int)((int)v) >> (sizeof(int) * CHAR_BIT - 1));
 sign = v >> (sizeof(int) * CHAR_BIT - 1); 
 ```
 
-The last expression above evaluates to sign = v >> 31 
-for 32-bit integers.  
-This is one operation faster than the obvious way, sign = -(v < 0).
-This trick works because when signed integers are shifted right, the value 
-of the far left bit is copied to the other bits.  The far left bit is 1 
-when the value is negative and 0 otherwise; all 1 bits gives -1.  
-Unfortunately, this behavior is architecture-specific.
+The last expression above evaluates to `sign = v >> 31` for 32-bit integers. This is one operation faster than the obvious way, `sign = -(v < 0)`. This trick works because when signed integers are shifted right, the value of the far left bit is copied to the other bits. The far left bit is 1 when the value is negative and 0 otherwise; all 1 bits gives -1. Unfortunately, this behavior is architecture-specific.
 
 Alternatively, if you prefer the result be either -1 or +1, then use:
 
@@ -127,27 +121,20 @@ sign = (v != 0) | (v >> (sizeof(int) * CHAR_BIT - 1));  // -1, 0, or +1
 // Or, for portability, brevity, and (perhaps) speed:
 sign = (v > 0) - (v < 0); // -1, 0, or +1
 ```
-If instead you want to know if something is non-negative, resulting in +1 or
-else 0, then use:
+If instead you want to know if something is non-negative, resulting in +1 or else 0, then use:
 ```c
 sign = 1 ^ ((unsigned int)v >> (sizeof(int) * CHAR_BIT - 1)); // if v < 0 then 0, else 1
 ```
 
-Caveat:  On March 7, 2003, Angus Duggan pointed out that the 1989 ANSI C 
-specification leaves the result of signed right-shift implementation-defined,
-so on some systems this hack might not work.  For greater portability, 
-Toby Speight suggested on September 28, 2005 that CHAR_BIT be used here 
-and throughout rather than assuming bytes were 8 bits long.  Angus recommended
-the more portable versions above, involving casting on March 4, 2006.
-<a href="http://rpg-314.blogspot.com/">Rohit Garg</a> suggested the version 
-for non-negative integers on September 12, 2009.
+Caveat:  On March 7, 2003, Angus Duggan pointed out that the 1989 ANSI C specification leaves the result of signed right-shift implementation-defined, so on some systems this hack might not work. For greater portability, Toby Speight suggested on September 28, 2005 that CHAR_BIT be used here and throughout rather than assuming bytes were 8 bits long.  Angus recommended the more portable versions above, involving casting on March 4, 2006. [Rohit Garg](http://rpg-314.blogspot.com/) suggested the version for non-negative integers on September 12, 2009.
 
 
 <hr>
 
 
 
-<a name="DetectOppositeSigns">### Detect if two integers have opposite signs
+<a name="DetectOppositeSigns">
+### Detect if two integers have opposite signs
 </a>
 
 
@@ -506,7 +493,9 @@ April 3, 2007 and alerted me to a typo 2 days later.
 <hr>
 
 
-<a name="ConditionalNegate">### Conditionally negate a value without branching</a>
+<a name="ConditionalNegate">
+### Conditionally negate a value without branching
+</a>
 
 
 If you need to negate only when a flag is false, then use the following 
@@ -540,7 +529,8 @@ missing on November 26, 2009, and received a bug bounty.
 
 
 
-<a name="MaskedMerge">### Merge bits from two values according to a mask
+<a name="MaskedMerge">
+### Merge bits from two values according to a mask
 </a>
 
 
@@ -1748,7 +1738,8 @@ brought this oversight to my attention on December 12, 2003.
 <hr>
 
 
-<a name="IntegerLogDeBruijn">### Find the log base 2 of an N-bit integer in O(lg(N)) operations with multiply and lookup
+<a name="IntegerLogDeBruijn">
+### Find the log base 2 of an N-bit integer in O(lg(N)) operations with multiply and lookup
 </a>
 
 
@@ -1954,7 +1945,8 @@ and he suggested using memcpy.
 <hr>
 
 
-<a name="ZerosOnRightLinear">### Count the consecutive zero bits (trailing) on the right linearly
+<a name="ZerosOnRightLinear">
+### Count the consecutive zero bits (trailing) on the right linearly
 </a>
 
 
@@ -1986,7 +1978,8 @@ I had neglected to paste the unsigned modifier for v.
 <hr>
 
 
-<a name="ZerosOnRightParallel">### Count the consecutive zero bits (trailing) on the right in parallel
+<a name="ZerosOnRightParallel">
+### Count the consecutive zero bits (trailing) on the right in parallel
 </a>
 
 
@@ -2014,7 +2007,8 @@ February 4, 2011.
 <hr>
 
 
-<a name="ZerosOnRightBinSearch">### Count the consecutive zero bits (trailing) on the right by binary search
+<a name="ZerosOnRightBinSearch">
+### Count the consecutive zero bits (trailing) on the right by binary search
 </a>
 
 
@@ -2072,7 +2066,8 @@ subtracting at the end).
 <hr>
 
 
-<a name="ZerosOnRightFloatCast">### Count the consecutive zero bits (trailing)
+<a name="ZerosOnRightFloatCast">
+### Count the consecutive zero bits (trailing)
 on the right by casting to a float
 </a>
 
@@ -2095,7 +2090,8 @@ If v is zero, then the result is -127.
 <hr>
 
 
-<a name="ZerosOnRightModLookup">### Count the consecutive zero bits (trailing)
+<a name="ZerosOnRightModLookup">
+### Count the consecutive zero bits (trailing)
 on the right with modulus division and lookup
 </a>
 
@@ -2127,7 +2123,8 @@ the table values, and found it was invented earlier by Reiser, according to
 <hr>
 
 
-<a name="ZerosOnRightMultLookup">### Count the consecutive zero bits (trailing)
+<a name="ZerosOnRightMultLookup">
+### Count the consecutive zero bits (trailing)
 on the right with multiply and lookup
 </a>
 
@@ -2164,7 +2161,8 @@ compiled with 64-bit ints.
 <hr>
 
 
-<a name="RoundUpPowerOf2Float">### Round up to the next highest power of 2 by float casting
+<a name="RoundUpPowerOf2Float">
+### Round up to the next highest power of 2 by float casting
 </a>
 
 
@@ -2208,7 +2206,8 @@ rounding, but it used one more operation.
 <hr>
 
 
-<a name="RoundUpPowerOf2">### Round up to the next highest power of 2
+<a name="RoundUpPowerOf2">
+### Round up to the next highest power of 2
 </a>
 
 
@@ -2258,7 +2257,8 @@ where they arrive at the same algorithm.
 <hr>
 
 
-<a name="InterleaveTableObvious">### Interleave bits the obvious way
+<a name="InterleaveTableObvious">
+### Interleave bits the obvious way
 </a>
 
 
@@ -2282,7 +2282,8 @@ another if their x and y values are close.
 <hr>
 
 
-<a name="InterleaveTableLookup">### Interleave bits by table lookup
+<a name="InterleaveTableLookup">
+### Interleave bits by table lookup
 </a>
 
 
@@ -2343,7 +2344,8 @@ only need 11 operations total.
 <hr>
 
 
-<a name="Interleave64bitOps">### Interleave bits with 64-bit multiply</a>
+<a name="Interleave64bitOps">
+### Interleave bits with 64-bit multiply</a>
 
 
 In 11 operations, this version interleaves bits of two bytes 
@@ -2370,7 +2372,8 @@ October 10, 2004 after reading the multiply-based bit reversals here.
 <hr>
 
 
-<a name="InterleaveBMN">### Interleave bits by Binary Magic Numbers
+<a name="InterleaveBMN">
+### Interleave bits by Binary Magic Numbers
 </a>
 
 
@@ -2400,7 +2403,8 @@ z = x | (y << 1);
 <hr>
 
 
-<a name="ZeroInWord">### Determine if a word has a zero byte
+<a name="ZeroInWord">
+### Determine if a word has a zero byte
 </a>
 
 
@@ -2478,7 +2482,8 @@ on April 27, 1987 by Alan Mycroft.
 <hr>
 
 
-<a name="#ValueInWord">### Determine if a word has a byte equal to n
+<a name="#ValueInWord">
+### Determine if a word has a byte equal to n
 </a>
 
 
@@ -2500,7 +2505,8 @@ for `haszero`.
 <hr>
 
 
-<a name="HasLessInWord">### Determine if a word has a byte less than n
+<a name="HasLessInWord">
+### Determine if a word has a byte less than n
 </a>
 
 
@@ -2531,7 +2537,8 @@ April 10, 2005, inspired by Juha's `countmore`, below.
 <hr>
 
 
-<a name="HasMoreInWord">### Determine if a word has a byte greater than n
+<a name="HasMoreInWord">
+### Determine if a word has a byte greater than n
 </a>
 
 
@@ -2556,7 +2563,8 @@ April 6, 2005, and he added `countmore` on April 8, 2005.
 <hr>
 
 
-<a name="HasBetweenInWord">### Determine if a word has a byte between m and n
+<a name="HasBetweenInWord">
+### Determine if a word has a byte between m and n
 </a>
 
 
@@ -2599,7 +2607,8 @@ Sean Anderson created `hasbetween` and
 <hr>
 
 
-<a name="NextBitPermutation">### Compute the lexicographically next bit permutation
+<a name="NextBitPermutation">
+### Compute the lexicographically next bit permutation
 </a>
 
 
